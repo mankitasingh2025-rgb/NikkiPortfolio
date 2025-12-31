@@ -5,10 +5,23 @@ import Database from "better-sqlite3";
 import { sql } from "drizzle-orm";
 import * as schema from "../shared/schema.js";
 
-// SQLite database connection
-const dbPath = './portfolio.db';
-const sqlite = new Database(dbPath);
-const db = drizzle(sqlite, { schema });
+// Import PostgreSQL modules
+import { drizzle as drizzlePostgres } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+
+// Database connection based on environment
+let db: any;
+
+if (process.env.NODE_ENV === 'production' && process.env.DATABASE_URL) {
+  // PostgreSQL for production
+  const client = postgres(process.env.DATABASE_URL);
+  db = drizzlePostgres(client, { schema });
+} else {
+  // SQLite for development
+  const dbPath = './portfolio.db';
+  const sqlite = new Database(dbPath);
+  db = drizzle(sqlite, { schema });
+}
 
 // modify the interface with any CRUD methods
 // you might need
