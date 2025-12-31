@@ -1,29 +1,12 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { fileURLToPath, URL } from "node:url";
+import path from "path";
 
 export default defineConfig({
+  root: path.resolve(__dirname),
   plugins: [react()],
-
-  // 👇 frontend root
-  root: "./client",
-
-  resolve: {
-    alias: {
-      "@": fileURLToPath(new URL("./client/src", import.meta.url)),
-    },
-  },
-
-  server: {
-    port: 3000,
-    host: true,
-  },
-
   build: {
-    // 👇 VERY IMPORTANT: Netlify expects this
-    outDir: "./client/dist",
+    outDir: "dist",
     emptyOutDir: true,
   },
-
-  publicDir: "./attached_assets",
 });
