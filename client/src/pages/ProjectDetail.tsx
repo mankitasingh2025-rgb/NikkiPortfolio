@@ -1,4 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
+
+// Performance optimization: Reduce animation complexity
+const optimizedTransition = { duration: 0.3, ease: "easeOut" };
 import { ArrowLeft, MapPin, Calendar, User, Moon, Sun, ChevronRight, Mail, Check, ExternalLink, Linkedin, MessageCircle, Users, Briefcase, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/context/ThemeContext";
@@ -97,31 +100,19 @@ export default function ProjectDetail() {
   // Get images from the project object (now includes images array)
   const projectImages = project.images || [];
   
-  // Generate image sources using the getImageSrc utility
+  // Generate image sources using getImageSrc utility
   const galleryImages = projectImages.map((img: any, index: number) => {
     const src = getImageSrc(img.imageUrl, img.imageData);
-    console.log(`=== Image ${index + 1} ===`);
-    console.log(`ID: ${img.id}`);
-    console.log(`URL: ${img.imageUrl}`);
-    console.log(`Has Data: ${!!img.imageData}`);
-    console.log(`Generated Src: ${src}`);
-    console.log(`-------------------`);
     return src;
   }).filter((src: string) => src && src.trim() !== '');
   
   // Handle image error and track failed images
   const handleImageError = (imageIndex: number, imageUrl: string) => {
-    console.log(`❌ IMAGE FAILED - Index ${imageIndex + 1}: ${imageUrl}`);
     setFailedImages(prev => new Set(prev).add(imageIndex));
   };
   
   // Filter out failed images
   const validGalleryImages = galleryImages.filter((_: string, index: number) => !failedImages.has(index));
-  
-  console.log('Project images count:', projectImages.length);
-  console.log('Failed images count:', failedImages.size);
-  console.log('Valid gallery images count:', validGalleryImages.length);
-  console.log('Gallery images:', galleryImages);
 
   return (
     <div className="min-h-screen overflow-x-hidden">
@@ -145,8 +136,9 @@ export default function ProjectDetail() {
       <section id="hero" className="min-h-screen pb-8 px-6 max-w-6xl mx-auto scroll-mt-32">
         <div className="pt-24">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={optimizedTransition}
             className="mb-8"
           >
             <h1 className="text-4xl md:text-6xl font-bold mb-4">{project.title}</h1>
@@ -172,9 +164,9 @@ export default function ProjectDetail() {
 
           {/* Hero Image */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+            transition={{ ...optimizedTransition, delay: 0.05 }}
             className="rounded-2xl md:rounded-3xl overflow-hidden h-64 md:h-96 lg:h-[500px] mb-12"
           >
             {validGalleryImages.length > 0 ? (
@@ -184,7 +176,6 @@ export default function ProjectDetail() {
                 loading="lazy"
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  console.error('Failed to load hero image:', validGalleryImages[0]);
                   const img = e.target as HTMLImageElement;
                   // Try to load a different image or use not found from assets
                   if (validGalleryImages.length > 1) {
@@ -209,9 +200,9 @@ export default function ProjectDetail() {
           {/* Project Details */}
           <div className="grid md:grid-cols-3 gap-8 md:gap-12 mb-4">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ ...optimizedTransition, delay: 0.1 }}
               className="md:col-span-2"
             >
               <h2 className="text-2xl font-bold mb-4">Overview</h2>
@@ -227,9 +218,9 @@ export default function ProjectDetail() {
 
             {/* Desktop Project Info - Only visible on desktop */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+              transition={{ ...optimizedTransition, delay: 0.25 }}
               className="hidden md:block glass p-8 rounded-3xl h-fit"
             >
               <h3 className="font-bold mb-6 text-lg">Project Info</h3>
@@ -271,10 +262,10 @@ export default function ProjectDetail() {
 
           {/* Key Highlights */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="mb-4"
+            transition={{ ...optimizedTransition, delay: 0.2 }}
+            className="mb-12"
           >
             <h2 className="text-2xl font-bold mb-4">Key Features</h2>
             <div className="grid md:grid-cols-2 gap-4">
@@ -305,15 +296,14 @@ export default function ProjectDetail() {
               {validGalleryImages.slice(0, 2).map((image: string, i: number) => (
                 <motion.div
                   key={i}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 + (i * 0.1) }}
+                  transition={{ ...optimizedTransition, delay: 0.25 + (i * 0.05) }}
                   className="rounded-xl overflow-hidden h-40 md:h-48 lg:h-56 relative group cursor-pointer"
-                  whileTap={{ scale: 0.95 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    console.log(`Image ${i + 1} clicked, opening modal at index ${i}`);
                     setIsModalOpen(true);
                     setModalInitialIndex(i);
                   }}
@@ -324,7 +314,6 @@ export default function ProjectDetail() {
                     loading="lazy"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     onError={(e) => {
-                      console.error(`Failed to load image ${i + 1}:`, image);
                       handleImageError(i, image);
                       const img = e.target as HTMLImageElement;
                       img.src = "/notFound.png";
@@ -345,15 +334,14 @@ export default function ProjectDetail() {
                 <>
                   {/* Third Image */}
                   <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.4 }}
+                    transition={{ ...optimizedTransition, delay: 0.35 }}
                     className="rounded-xl overflow-hidden h-40 md:h-48 lg:h-56 relative group cursor-pointer"
-                    whileTap={{ scale: 0.95 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      console.log('Image 3 clicked, opening modal at index 2');
                       setIsModalOpen(true);
                       setModalInitialIndex(2);
                     }}
@@ -364,7 +352,6 @@ export default function ProjectDetail() {
                       loading="lazy"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       onError={(e) => {
-                        console.error('Failed to load image 3:', validGalleryImages[2]);
                         handleImageError(2, validGalleryImages[2]);
                         const img = e.target as HTMLImageElement;
                         img.src = "/notFound.png";
@@ -382,15 +369,14 @@ export default function ProjectDetail() {
                   {/* View All Card */}
                   {validGalleryImages.length > 3 && (
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
+                      initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.5, delay: 0.5 }}
+                      transition={{ ...optimizedTransition, delay: 0.4 }}
                       className="rounded-xl overflow-hidden h-40 md:h-48 lg:h-56 relative group cursor-pointer bg-gradient-to-br from-primary via-primary/80 to-primary/60"
-                      whileTap={{ scale: 0.95 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        console.log('View All clicked, opening modal');
                         setIsModalOpen(true);
                         setModalInitialIndex(0);
                       }}
@@ -403,8 +389,8 @@ export default function ProjectDetail() {
                       {/* Content */}
                       <div className="relative h-full flex flex-col items-center justify-center text-white p-6 pointer-events-none">
                         <motion.div
-                          animate={{ scale: [1, 1.1, 1] }}
-                          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                          animate={{ scale: [1, 1.05, 1] }}
+                          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                           className="mb-4"
                         >
                           <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
@@ -457,10 +443,10 @@ export default function ProjectDetail() {
           {/* CTA */}
           <motion.div
             key="contact-card"
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ ...optimizedTransition, delay: 0.3 }}
             className="cursor-pointer"
           >
             <div className="relative group">

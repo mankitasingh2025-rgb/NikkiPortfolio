@@ -1,19 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { 
   Palette, 
-  Code2, 
-  Sparkles, 
   Home, 
   Ruler, 
   Box, 
-  Move3D, 
   Layers, 
   PenTool, 
   Eye,
   DraftingCompass,
   Building,
   PaintBucket,
-  Sofa
+  Sofa,
+  Move3D
 } from "lucide-react";
 
 // API utility functions
@@ -71,12 +69,8 @@ export const getImageSrc = (imageUrl?: string, imageData?: string): string => {
 // Icon mapping for skills
 export const getIconComponent = (iconName: string) => {
   const icons: Record<string, React.ComponentType<any>> = {
-    // Current icons from your database
+    // Core icons for interior design
     Palette: Palette,
-    Code2: DraftingCompass, // Better for space planning
-    Sparkles: Move3D, // Better for 3D visualization
-    
-    // Additional relevant icons for interior design
     Home: Home,
     Ruler: Ruler,
     Box: Box,
@@ -88,6 +82,9 @@ export const getIconComponent = (iconName: string) => {
     PaintBucket: PaintBucket,
     Sofa: Sofa,
     Move3D: Move3D,
+    
+    // Fallback for any other icons
+    default: Palette
   };
-  return icons[iconName] || Palette;
+  return icons[iconName] || icons.default;
 };

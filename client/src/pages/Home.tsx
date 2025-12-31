@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Github, Twitter, Linkedin, Mail, ExternalLink, Code2, Palette, Sparkles, Menu, X, Moon, Sun, MessageCircle, ArrowUp, Check, Users, Briefcase, Award } from "lucide-react";
-import { Section, ProjectCard } from "@/components/Portfolio";
+import { Github, Twitter, Linkedin, Mail, ExternalLink, Sparkles, Menu, X, Check, Users, Briefcase, Award, MessageCircle, ArrowUp, Moon, Sun } from "lucide-react";
+import { Section } from "@/components/Portfolio";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/context/ThemeContext";
-import { useSkills, useExperiences, useProjects, useProfile, getImageSrc, getIconComponent } from "@/lib/api";
+import { useSkills, useExperiences, useProjects, useProfile, getImageSrc } from "@/lib/api";
 import { SkeletonCard, SkeletonSkill, SkeletonExperience, ContentLoader, LoadingSpinner } from "@/components/LoadingStates";
+import { SkillCard, ExperienceCard, ProjectCardWrapper } from "@/components/OptimizedComponents";
 import type { Skill, Experience, Project, ProjectImage } from "../../../shared/schema";
 
 import avatarImage from "@assets/avatar_transparent.png";
@@ -14,6 +15,7 @@ import resumeFile from "@assets/Nikita_Singh_Resume_1766831247652.pdf";
 export default memo(function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
   const { isDark, toggleTheme } = useTheme();
 
   // Fetch data from API
@@ -21,6 +23,36 @@ export default memo(function Home() {
   const { data: experiences = [], isLoading: experiencesLoading } = useExperiences();
   const { data: projects = [], isLoading: projectsLoading } = useProjects();
   const { data: profile } = useProfile();
+
+  // Optimized scroll spy with intersection observer for better performance
+  useEffect(() => {
+    const sections = ['home', 'about', 'work', 'experience', 'contact'];
+    
+    // Use Intersection Observer for better performance
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      {
+        rootMargin: '-100px 0px -50% 0px',
+        threshold: 0
+      }
+    );
+
+    // Observe all sections
+    sections.forEach((sectionId) => {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        observer.observe(element);
+      }
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   // const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
   //   e.preventDefault();
@@ -96,10 +128,11 @@ const scrollToSection = (e: any, id: string) => {
           
           {/* Desktop Menu */}
           <div className="hidden md:flex gap-8 text-sm font-medium text-foreground dark:text-foreground">
-            <a href="#about" onClick={(e) => scrollToSection(e, 'about')} className="hover:text-primary transition-colors link-smooth">About</a>
-            <a href="#work" onClick={(e) => scrollToSection(e, 'work')} className="hover:text-primary transition-colors link-smooth">Work</a>
-            <a href="#experience" onClick={(e) => scrollToSection(e, 'experience')} className="hover:text-primary transition-colors link-smooth">Experience</a>
-            <a href="#contact" onClick={(e) => scrollToSection(e, 'contact')} className="hover:text-primary transition-colors link-smooth">Contact</a>
+            <a href="#home" onClick={(e) => scrollToSection(e, 'home')} className={`hover:text-primary transition-colors link-smooth ${activeSection === 'home' ? 'text-primary font-semibold' : ''}`}>Home</a>
+            <a href="#about" onClick={(e) => scrollToSection(e, 'about')} className={`hover:text-primary transition-colors link-smooth ${activeSection === 'about' ? 'text-primary font-semibold' : ''}`}>About</a>
+            <a href="#work" onClick={(e) => scrollToSection(e, 'work')} className={`hover:text-primary transition-colors link-smooth ${activeSection === 'work' ? 'text-primary font-semibold' : ''}`}>Work</a>
+            <a href="#experience" onClick={(e) => scrollToSection(e, 'experience')} className={`hover:text-primary transition-colors link-smooth ${activeSection === 'experience' ? 'text-primary font-semibold' : ''}`}>Experience</a>
+            <a href="#contact" onClick={(e) => scrollToSection(e, 'contact')} className={`hover:text-primary transition-colors link-smooth ${activeSection === 'contact' ? 'text-primary font-semibold' : ''}`}>Contact</a>
           </div>
 
           {/* Right Section: Resume Button & Mobile Menu Button */}
@@ -133,10 +166,11 @@ const scrollToSection = (e: any, id: string) => {
               className="md:hidden bg-white dark:bg-black/50 border-t border-black/5 dark:border-white/10"
             >
               <div className="px-6 py-4 space-y-3 flex flex-col items-center text-foreground dark:text-foreground">
-                <a href="#about" onClick={(e) => scrollToSection(e, 'about')} className="block py-2 hover:text-primary transition-colors font-medium">About</a>
-                <a href="#work" onClick={(e) => scrollToSection(e, 'work')} className="block py-2 hover:text-primary transition-colors font-medium">Work</a>
-                <a href="#experience" onClick={(e) => scrollToSection(e, 'experience')} className="block py-2 hover:text-primary transition-colors font-medium">Experience</a>
-                <a href="#contact" onClick={(e) => scrollToSection(e, 'contact')} className="block py-2 hover:text-primary transition-colors font-medium">Contact</a>
+                <a href="#home" onClick={(e) => scrollToSection(e, 'home')} className={`block py-2 hover:text-primary transition-colors font-medium ${activeSection === 'home' ? 'text-primary font-semibold' : ''}`}>Home</a>
+                <a href="#about" onClick={(e) => scrollToSection(e, 'about')} className={`block py-2 hover:text-primary transition-colors font-medium ${activeSection === 'about' ? 'text-primary font-semibold' : ''}`}>About</a>
+                <a href="#work" onClick={(e) => scrollToSection(e, 'work')} className={`block py-2 hover:text-primary transition-colors font-medium ${activeSection === 'work' ? 'text-primary font-semibold' : ''}`}>Work</a>
+                <a href="#experience" onClick={(e) => scrollToSection(e, 'experience')} className={`block py-2 hover:text-primary transition-colors font-medium ${activeSection === 'experience' ? 'text-primary font-semibold' : ''}`}>Experience</a>
+                <a href="#contact" onClick={(e) => scrollToSection(e, 'contact')} className={`block py-2 hover:text-primary transition-colors font-medium ${activeSection === 'contact' ? 'text-primary font-semibold' : ''}`}>Contact</a>
               </div>
             </motion.div>
           )}
@@ -146,11 +180,8 @@ const scrollToSection = (e: any, id: string) => {
       {/* Hero Section */}
       <section id="home" className="min-h-screen px-6 flex items-center justify-center ">
         <div className="max-w-6xl w-full flex flex-col-reverse md:flex-row items-center justify-between gap-8 md:gap-12">
-        <motion.div 
-          initial={{ opacity: 0, x: -30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex-1 text-center md:text-left"
+        <div 
+          className="flex-1 text-center md:text-left animate-fade-in"
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/5 text-primary rounded-full text-sm font-medium mb-6">
             <Sparkles className="w-4 h-4" />
@@ -194,13 +225,10 @@ const scrollToSection = (e: any, id: string) => {
               </a>
             </div>
           </div>
-        </motion.div>
+        </div>
 
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, type: "spring", bounce: 0.4 }}
-          className="hidden md:flex flex-1 relative justify-center md:justify-end items-center"
+        <div 
+          className="hidden md:flex flex-1 relative justify-center md:justify-end items-center animate-float"
         >
           <div className="w-[250px] h-[250px] md:w-[400px] md:h-[400px] bg-primary/10 rounded-full blur-3xl absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
           <div className="relative animate-float w-2/3 md:w-full max-w-[400px]">
@@ -212,7 +240,7 @@ const scrollToSection = (e: any, id: string) => {
               data-testid="img-avatar"
             />
           </div>
-        </motion.div>
+        </div>
         </div>
       </section>
 
@@ -220,91 +248,23 @@ const scrollToSection = (e: any, id: string) => {
       <Section title="Expertise" id="about" centered={false}>
         <div className="grid md:grid-cols-3 gap-8">
           {skillsLoading ? (
-            // Enhanced loading skeleton with staggered animation
+            // Simplified loading skeleton without infinite animations
             Array.from({ length: 3 }).map((_, i) => (
-              <motion.div 
+              <div 
                 key={i} 
-                className="p-8 rounded-3xl glass soft-shadow"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1, duration: 0.5, ease: "easeOut" }}
+                className="p-8 rounded-3xl glass soft-shadow animate-fade-in"
+                style={{ animationDelay: `${i * 0.1}s` }}
               >
-                <motion.div 
-                  className="w-12 h-12 bg-primary/10 rounded-2xl mb-6"
-                  animate={{ 
-                    backgroundColor: ["hsl(var(--primary)/0.1)", "hsl(var(--primary)/0.05)", "hsl(var(--primary)/0.1)"] 
-                  }}
-                  transition={{ 
-                    duration: 2, 
-                    repeat: Infinity, 
-                    ease: "easeInOut",
-                    delay: i * 0.2
-                  }}
-                ></motion.div>
-                <motion.div 
-                  className="h-6 bg-primary/10 rounded mb-3"
-                  animate={{ 
-                    backgroundColor: ["hsl(var(--primary)/0.1)", "hsl(var(--primary)/0.05)", "hsl(var(--primary)/0.1)"] 
-                  }}
-                  transition={{ 
-                    duration: 2, 
-                    repeat: Infinity, 
-                    ease: "easeInOut",
-                    delay: i * 0.2 + 0.1
-                  }}
-                ></motion.div>
-                <motion.div 
-                  className="h-4 bg-primary/10 rounded mb-2"
-                  animate={{ 
-                    backgroundColor: ["hsl(var(--primary)/0.1)", "hsl(var(--primary)/0.05)", "hsl(var(--primary)/0.1)"] 
-                  }}
-                  transition={{ 
-                    duration: 2, 
-                    repeat: Infinity, 
-                    ease: "easeInOut",
-                    delay: i * 0.2 + 0.2
-                  }}
-                ></motion.div>
-                <motion.div 
-                  className="h-4 bg-primary/10 rounded w-3/4"
-                  animate={{ 
-                    backgroundColor: ["hsl(var(--primary)/0.1)", "hsl(var(--primary)/0.05)", "hsl(var(--primary)/0.1)"] 
-                  }}
-                  transition={{ 
-                    duration: 2, 
-                    repeat: Infinity, 
-                    ease: "easeInOut",
-                    delay: i * 0.2 + 0.3
-                  }}
-                ></motion.div>
-              </motion.div>
+                <div className="w-12 h-12 bg-primary/10 rounded-2xl mb-6 skeleton"></div>
+                <div className="h-6 bg-primary/10 rounded mb-3 skeleton"></div>
+                <div className="h-4 bg-primary/10 rounded mb-2 skeleton"></div>
+                <div className="h-4 bg-primary/10 rounded w-3/4 skeleton"></div>
+              </div>
             ))
           ) : (
-            skills.map((skill, i) => {
-              const IconComponent = getIconComponent(skill.icon);
-              return (
-                <motion.div
-                  key={skill.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.5, delay: i * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
-                  className="flex items-start gap-4 p-6 glass rounded-2xl hover-lift"
-                >
-                  <motion.div 
-                    className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary group-hover:bg-primary/20 transition-colors duration-300 flex-shrink-0"
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <IconComponent className="w-7 h-7" />
-                  </motion.div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-xl font-bold mb-3">{skill.title}</h3>
-                    <p className="text-muted-foreground leading-relaxed">{skill.description}</p>
-                  </div>
-                </motion.div>
-              );
-            })
+            skills.map((skill, i) => (
+              <SkillCard key={skill.id} skill={skill} index={i} />
+            ))
           )}
         </div>
       </Section>
@@ -313,103 +273,25 @@ const scrollToSection = (e: any, id: string) => {
       <Section title="Work Experience" id="experience" centered={false}>
         <div className="space-y-8">
           {experiencesLoading ? (
-            // Enhanced loading skeleton with staggered animation
+            // Simplified loading skeleton without infinite animations
             Array.from({ length: 3 }).map((_, i) => (
-              <motion.div 
+              <div 
                 key={i} 
-                className="flex flex-col md:flex-row gap-4 md:items-center justify-between p-8 glass rounded-3xl soft-shadow"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.15, duration: 0.6, ease: "easeOut" }}
+                className="flex flex-col md:flex-row gap-4 md:items-center justify-between p-8 glass rounded-3xl soft-shadow animate-fade-in"
+                style={{ animationDelay: `${i * 0.15}s` }}
               >
                 <div className="flex-1">
-                  <motion.div 
-                    className="h-6 bg-primary/10 rounded mb-2 w-1/2"
-                    animate={{ 
-                      backgroundColor: ["hsl(var(--primary)/0.1)", "hsl(var(--primary)/0.05)", "hsl(var(--primary)/0.1)"] 
-                    }}
-                    transition={{ 
-                      duration: 2.2, 
-                      repeat: Infinity, 
-                      ease: "easeInOut",
-                      delay: i * 0.3
-                    }}
-                  ></motion.div>
-                  <motion.div 
-                    className="h-5 bg-primary/10 rounded mb-4 w-1/3"
-                    animate={{ 
-                      backgroundColor: ["hsl(var(--primary)/0.1)", "hsl(var(--primary)/0.05)", "hsl(var(--primary)/0.1)"] 
-                    }}
-                    transition={{ 
-                      duration: 2.2, 
-                      repeat: Infinity, 
-                      ease: "easeInOut",
-                      delay: i * 0.3 + 0.1
-                    }}
-                  ></motion.div>
-                  <motion.div 
-                    className="h-4 bg-primary/10 rounded mb-2"
-                    animate={{ 
-                      backgroundColor: ["hsl(var(--primary)/0.1)", "hsl(var(--primary)/0.05)", "hsl(var(--primary)/0.1)"] 
-                    }}
-                    transition={{ 
-                      duration: 2.2, 
-                      repeat: Infinity, 
-                      ease: "easeInOut",
-                      delay: i * 0.3 + 0.2
-                    }}
-                  ></motion.div>
-                  <motion.div 
-                    className="h-4 bg-primary/10 rounded w-3/4"
-                    animate={{ 
-                      backgroundColor: ["hsl(var(--primary)/0.1)", "hsl(var(--primary)/0.05)", "hsl(var(--primary)/0.1)"] 
-                    }}
-                    transition={{ 
-                      duration: 2.2, 
-                      repeat: Infinity, 
-                      ease: "easeInOut",
-                      delay: i * 0.3 + 0.3
-                    }}
-                  ></motion.div>
+                  <div className="h-6 bg-primary/10 rounded mb-2 w-1/2 skeleton"></div>
+                  <div className="h-5 bg-primary/10 rounded mb-4 w-1/3 skeleton"></div>
+                  <div className="h-4 bg-primary/10 rounded mb-2 skeleton"></div>
+                  <div className="h-4 bg-primary/10 rounded w-3/4 skeleton"></div>
                 </div>
-                <motion.div 
-                  className="h-8 bg-primary/10 rounded-full w-32"
-                  animate={{ 
-                    backgroundColor: ["hsl(var(--primary)/0.1)", "hsl(var(--primary)/0.05)", "hsl(var(--primary)/0.1)"] 
-                  }}
-                  transition={{ 
-                    duration: 2.2, 
-                    repeat: Infinity, 
-                    ease: "easeInOut",
-                    delay: i * 0.3 + 0.4
-                  }}
-                ></motion.div>
-              </motion.div>
+                <div className="h-8 bg-primary/10 rounded-full w-32 skeleton"></div>
+              </div>
             ))
           ) : (
             experiences.map((job: Experience, i: number) => (
-              <motion.div 
-                key={job.id}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.7, delay: i * 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
-                whileHover={{ 
-                  x: 5,
-                  scale: 1.01,
-                  transition: { duration: 0.3, ease: "easeOut" }
-                }}
-                className="flex flex-col md:flex-row gap-4 md:items-center justify-between p-8 glass rounded-3xl soft-shadow cursor-pointer group"
-              >
-                <div>
-                  <h3 className="text-xl font-bold text-primary">{job.role}</h3>
-                  <p className="text-lg font-medium">{job.company}</p>
-                  <p className="text-muted-foreground mt-2 max-w-2xl">{job.description}</p>
-                </div>
-                <div className="text-sm font-semibold bg-primary/5 text-primary px-4 py-2 rounded-full h-fit whitespace-nowrap">
-                  {job.period}
-                </div>
-              </motion.div>
+              <ExperienceCard key={job.id} job={job} index={i} />
             ))
           )}
         </div>
@@ -420,118 +302,33 @@ const scrollToSection = (e: any, id: string) => {
       <Section title="Selected Work" id="work" centered={false}>
         <div className="grid md:grid-cols-2 gap-8">
           {projectsLoading ? (
-            // Enhanced loading skeleton with staggered animation
+            // Simplified loading skeleton without infinite animations
             Array.from({ length: 4 }).map((_, i) => (
-              <motion.div 
+              <div 
                 key={i} 
-                className="glass rounded-3xl soft-shadow overflow-hidden"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.12, duration: 0.5, ease: "easeOut" }}
+                className="glass rounded-3xl soft-shadow overflow-hidden animate-fade-in"
+                style={{ animationDelay: `${i * 0.12}s` }}
               >
-                <motion.div 
-                  className="w-full h-48 bg-primary/10"
-                  animate={{ 
-                    backgroundColor: ["hsl(var(--primary)/0.1)", "hsl(var(--primary)/0.05)", "hsl(var(--primary)/0.1)"] 
-                  }}
-                  transition={{ 
-                    duration: 2.5, 
-                    repeat: Infinity, 
-                    ease: "easeInOut",
-                    delay: i * 0.25
-                  }}
-                ></motion.div>
+                <div className="w-full h-48 bg-primary/10 skeleton"></div>
                 <div className="p-8">
-                  <motion.div 
-                    className="h-6 bg-primary/10 rounded mb-3 w-3/4"
-                    animate={{ 
-                      backgroundColor: ["hsl(var(--primary)/0.1)", "hsl(var(--primary)/0.05)", "hsl(var(--primary)/0.1)"] 
-                    }}
-                    transition={{ 
-                      duration: 2.5, 
-                      repeat: Infinity, 
-                      ease: "easeInOut",
-                      delay: i * 0.25 + 0.1
-                    }}
-                  ></motion.div>
-                  <motion.div 
-                    className="h-4 bg-primary/10 rounded mb-2"
-                    animate={{ 
-                      backgroundColor: ["hsl(var(--primary)/0.1)", "hsl(var(--primary)/0.05)", "hsl(var(--primary)/0.1)"] 
-                    }}
-                    transition={{ 
-                      duration: 2.5, 
-                      repeat: Infinity, 
-                      ease: "easeInOut",
-                      delay: i * 0.25 + 0.2
-                    }}
-                  ></motion.div>
-                  <motion.div 
-                    className="h-4 bg-primary/10 rounded w-1/2 mb-6"
-                    animate={{ 
-                      backgroundColor: ["hsl(var(--primary)/0.1)", "hsl(var(--primary)/0.05)", "hsl(var(--primary)/0.1)"] 
-                    }}
-                    transition={{ 
-                      duration: 2.5, 
-                      repeat: Infinity, 
-                      ease: "easeInOut",
-                      delay: i * 0.25 + 0.3
-                    }}
-                  ></motion.div>
+                  <div className="h-6 bg-primary/10 rounded mb-3 w-3/4 skeleton"></div>
+                  <div className="h-4 bg-primary/10 rounded mb-2 skeleton"></div>
+                  <div className="h-4 bg-primary/10 rounded w-1/2 mb-6 skeleton"></div>
                   <div className="flex gap-2">
-                    <motion.div 
-                      className="h-6 bg-primary/10 rounded-full w-16"
-                      animate={{ 
-                        backgroundColor: ["hsl(var(--primary)/0.1)", "hsl(var(--primary)/0.05)", "hsl(var(--primary)/0.1)"] 
-                      }}
-                      transition={{ 
-                        duration: 2.5, 
-                        repeat: Infinity, 
-                        ease: "easeInOut",
-                        delay: i * 0.25 + 0.4
-                      }}
-                    ></motion.div>
-                    <motion.div 
-                      className="h-6 bg-primary/10 rounded-full w-20"
-                      animate={{ 
-                        backgroundColor: ["hsl(var(--primary)/0.1)", "hsl(var(--primary)/0.05)", "hsl(var(--primary)/0.1)"] 
-                      }}
-                      transition={{ 
-                        duration: 2.5, 
-                        repeat: Infinity, 
-                        ease: "easeInOut",
-                        delay: i * 0.25 + 0.5
-                      }}
-                    ></motion.div>
+                    <div className="h-6 bg-primary/10 rounded-full w-16 skeleton"></div>
+                    <div className="h-6 bg-primary/10 rounded-full w-20 skeleton"></div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))
           ) : (
             projects.slice(0, 4).map((project: Project & { images: ProjectImage[] }, i: number) => (
-              <motion.div
+              <ProjectCardWrapper 
                 key={project.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.6, delay: i * 0.12, ease: [0.25, 0.46, 0.45, 0.94] }}
-                whileHover={{ 
-                  scale: 1.03,
-                  y: -5,
-                  transition: { duration: 0.3, ease: "easeOut" }
-                }}
-                className="cursor-pointer"
-              >
-                <ProjectCard 
-                  title={project.title} 
-                  description={project.description}
-                  tags={Array.isArray(project.tags) ? project.tags : []}
-                  image={project.images && project.images.length > 0 
-                    ? getImageSrc(project.images[0].imageUrl || undefined, project.images[0].imageData || undefined)
-                    : undefined
-                  }
-                />
-              </motion.div>
+                project={project} 
+                index={i}
+                getImageSrc={getImageSrc}
+              />
             ))
           )}
         </div>

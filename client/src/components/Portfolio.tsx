@@ -1,7 +1,7 @@
-import { motion } from 'framer-motion';
+import { memo } from 'react';
 import { LucideIcon } from 'lucide-react';
 import { useLocation } from 'wouter';
-import { memo } from 'react';
+import { OptimizedImage } from '@/components/OptimizedImage';
 
 interface SectionProps {
   title: string;
@@ -18,16 +18,12 @@ export const Section = memo(
         centered ? 'justify-center' : 'justify-start'
       }`}
     >
-      <motion.h2
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-50px' }}
-        transition={{ duration: 0.4, ease: 'easeOut' }}
-        className="text-3xl font-bold mb-12 text-center"
+      <h2
+        className="text-3xl font-bold mb-12 text-center animate-fade-in"
         data-testid={`heading-section-${id}`}
       >
         {title}
-      </motion.h2>
+      </h2>
       {children}
     </section>
   )
@@ -48,9 +44,8 @@ export const ProjectCard = memo(({ title, description, tags, image, projectId }:
   const navigationId = projectId || title.toLowerCase().replace(/\s+/g, '-');
 
   return (
-    <motion.div
-      whileHover={{ y: -5 }}
-      className="glass rounded-3xl soft-shadow group overflow-hidden flex flex-col smooth-transition hover-lift"
+    <div
+      className="glass rounded-3xl soft-shadow group overflow-hidden flex flex-col smooth-transition hover-lift cursor-pointer"
       data-testid={`card-project-${navigationId}`}
       onClick={() => setLocation(`/projects/${navigationId}`)}
       role="button"
@@ -64,11 +59,10 @@ export const ProjectCard = memo(({ title, description, tags, image, projectId }:
     >
       {image && (
         <div className="w-full h-48 overflow-hidden bg-primary/5">
-          <img
+          <OptimizedImage
             src={image}
             alt={title}
-            loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300 smooth-transition"
+            className="group-hover:scale-110 transition-transform duration-200"
           />
         </div>
       )}
@@ -88,6 +82,6 @@ export const ProjectCard = memo(({ title, description, tags, image, projectId }:
           ))}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 });

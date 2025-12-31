@@ -1,16 +1,16 @@
 import { sql } from "drizzle-orm";
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { pgTable, text, integer, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const users = sqliteTable("users", {
+export const users = pgTable("users", {
   id: text("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
 });
 
 // Portfolio Content Tables
-export const skills = sqliteTable("skills", {
+export const skills = pgTable("skills", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
@@ -20,7 +20,7 @@ export const skills = sqliteTable("skills", {
   updatedAt: text("updated_at"),
 });
 
-export const experiences = sqliteTable("experiences", {
+export const experiences = pgTable("experiences", {
   id: text("id").primaryKey(),
   company: text("company").notNull(),
   role: text("role").notNull(),
@@ -31,7 +31,7 @@ export const experiences = sqliteTable("experiences", {
   updatedAt: text("updated_at"),
 });
 
-export const projects = sqliteTable("projects", {
+export const projects = pgTable("projects", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
@@ -39,13 +39,13 @@ export const projects = sqliteTable("projects", {
   client: text("client"),
   location: text("location"),
   tags: text("tags"), // JSON string array
-  featured: integer("featured", { mode: 'boolean' }).default(false),
+  featured: boolean("featured").default(false),
   order: integer("order").notNull().default(0),
   createdAt: text("created_at"),
   updatedAt: text("updated_at"),
 });
 
-export const projectImages = sqliteTable("project_images", {
+export const projectImages = pgTable("project_images", {
   id: text("id").primaryKey(),
   projectId: text("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
   imageUrl: text("image_url"),
@@ -56,7 +56,7 @@ export const projectImages = sqliteTable("project_images", {
   updatedAt: text("updated_at"),
 });
 
-export const profile = sqliteTable("profile", {
+export const profile = pgTable("profile", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   title: text("title").notNull(),
